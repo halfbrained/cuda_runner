@@ -1,0 +1,60 @@
+[info]
+title=Runner
+desc=(Fill the description)
+type=cudatext-plugin
+subdir=cuda_runner
+homepage=(Fill the GitHub repo URL)
+
+[item1]
+section=events
+events=on_start
+;events=
+
+[item2]
+section=commands
+caption=_Runner\Build
+method=build
+
+[item3]
+section=commands
+caption=_Runner\Build with...
+method=cmds_menu
+
+[item4]
+section=commands
+caption=_Runner\Choose build config
+method=lexmap_cfg
+
+[item5]
+section=commands
+caption=_Runner\-
+method=_
+
+
+[item6]
+section=commands
+caption=_Runner\Next output
+method=next_output
+
+[item7]
+section=commands
+caption=_Runner\Previous output
+method=prev_output
+
+[item8]
+section=commands
+caption=_Runner\-
+method=_
+
+
+[item9]
+section=commands
+caption=_Runner\Cancel build
+method=cancel_build
+
+
+[item20]
+section=commands
+caption=_Runner\Config
+method=config
+menu=o
