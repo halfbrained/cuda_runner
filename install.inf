@@ -1,9 +1,9 @@
 [info]
 title=Runner
-desc=(Fill the description)
+desc=Adds commands to build/compile files/projects.
 type=cudatext-plugin
 subdir=cuda_runner
-homepage=(Fill the GitHub repo URL)
+homepage=https://github.com/halfbrained/cuda_runner
 
 [item1]
 section=events
