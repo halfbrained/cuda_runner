@@ -491,7 +491,7 @@ class Build:
             )
         except Exception as ex:
             msg_box('{}: {}'.format(type(ex).__name__, ex), MB_ICONWARNING)
-            log('fail Popen',)
+            pass;               LOG and log('fail Popen',)
             return
         if popen is None:
             pass;               LOG and log('fail Popen',)
