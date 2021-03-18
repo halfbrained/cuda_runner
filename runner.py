@@ -79,18 +79,6 @@ def set_output_regex(regex):
         app_log(LOG_SET_COL_ID, '3', panel=LOG_PANEL_OUTPUT)
         app_log(LOG_SET_NAME_ID, '1', panel=LOG_PANEL_OUTPUT) # filename
 
-"""
-#TODO
-* prints
-* build unsaved file?
-
-#TO DOC
-* menu commands
-* option_max_logs 
-* build log info extra: macros options
-* subcommands (with or without extension)
-* commands to list build and commands
-"""
 
 class Command:
     def __init__(self):
@@ -100,7 +88,21 @@ class Command:
         
         self.load_config()
         
-        self.builds = []
+        self._builds = [] # for property .builds
+        self._builds_loaded = False
+            
+        if SUBCOMMANDS:
+            subcmds = '\n'.join('{}\t{}'.format(name, val)  for name,val in SUBCOMMANDS.items())
+            app_proc(PROC_SET_SUBCOMMANDS, 'cuda_runner;build_subcommand;'+subcmds)
+    
+    @property
+    def builds(self):
+        if not self._builds_loaded:
+            self._load_builds()
+        return self._builds
+            
+    def _load_builds(self):
+        self._builds_loaded = True
         for name in os.listdir(BUILDS_DIR):
             if name.endswith('.sublime-build'):
                 path = os.path.join(BUILDS_DIR, name)
@@ -113,12 +115,8 @@ class Command:
                     msg_box(_('Failed to load build-system "{}": {}: {}').format(name, type(ex).__name__, ex), MB_ICONWARNING)
                     continue
                     
-                self.builds.append(build)
-        self.builds.sort(key=lambda b: b.name.lower())
-            
-        if SUBCOMMANDS:
-            subcmds = '\n'.join('{}\t{}'.format(name, val)  for name,val in SUBCOMMANDS.items())
-            app_proc(PROC_SET_SUBCOMMANDS, 'cuda_runner;build_subcommand;'+subcmds)
+                self._builds.append(build)
+        self._builds.sort(key=lambda b: b.name.lower())
             
     def load_config(self):
         global option_max_logs
@@ -168,6 +166,10 @@ class Command:
         
     def on_start(self, ed_self): # subcommand hotkeys dont work without this
         pass
+        
+    def on_open(self, ed_self):
+        if not self._builds_loaded:
+            self._load_builds()
         
     def on_exit(self, ed_self):
         self.cancel_build()
