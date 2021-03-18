@@ -180,7 +180,9 @@ class Command:
 
         b = self._get_ed_build(ed)
         if not b:
-            print('No build-config for current document')
+            lex = ed.get_prop(PROP_LEXER_FILE)
+            target_msg = 'lexer '+lex  if lex else  'file '+os.path.basename(ed.get_filename())
+            msg_status('No build-system(s) found for ' + target_msg)
             return
         
         if name is None:
@@ -302,6 +304,7 @@ class Command:
         # might be associated to missing build.. search
         build = get_first((self._getbuild(bname) for bname in bnames), notnone=True) 
         if build:
+            pass;               LOG and log('build match: ext: {}'.format(build.name))  
             return build
             
         # custom lexer association
@@ -309,6 +312,7 @@ class Command:
         if edlex and edlex in LEXMAP:
             build = self._getbuild(LEXMAP[edlex])
             if build:
+                pass;               LOG and log('build match: lex: {}'.format(edlex))  
                 return build
         
         # sublime selectors
@@ -442,6 +446,7 @@ class Build:
         fn = ed.get_filename()
         if fn and self.file_patterns:
             if any(fnmatch(name=fn, pat=pattern) for pattern in self.file_patterns):
+                pass;               LOG and log('build match: inbuild: file({}): {}'.format(fn, self.name))
                 return True
                 
         lex = ed.get_prop(PROP_LEXER_FILE)
@@ -449,6 +454,7 @@ class Build:
             lex = lex.lower()
             for sel in self.selectors:
                 if lex == sel:
+                    pass;               LOG and log('build match: inbuild: lex: {}'.format(sel))
                     return True
                 
         return False
