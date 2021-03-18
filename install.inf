@@ -12,49 +12,49 @@ events=on_start,on_open
 
 [item2]
 section=commands
-caption=_Runner\Build
+caption=Runner\Build
 method=build
 
 [item3]
 section=commands
-caption=_Runner\Build with...
+caption=Runner\Build with...
 method=cmds_menu
 
 [item4]
 section=commands
-caption=_Runner\Choose build config...
+caption=Runner\Choose build config...
 method=lexmap_cfg
 
 [item5]
 section=commands
-caption=_Runner\-
+caption=Runner\-
 method=_
 
 
 [item6]
 section=commands
-caption=_Runner\Next output
+caption=Runner\Next output
 method=next_output
 
 [item7]
 section=commands
-caption=_Runner\Previous output
+caption=Runner\Previous output
 method=prev_output
 
 [item8]
 section=commands
-caption=_Runner\-
+caption=Runner\-
 method=_
 
 
 [item9]
 section=commands
-caption=_Runner\Cancel build
+caption=Runner\Cancel build
 method=cancel_build
 
 
 [item20]
 section=commands
-caption=_Runner\Config
+caption=Runner\Config
 method=config
 menu=o
