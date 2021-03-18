@@ -22,7 +22,7 @@ method=cmds_menu
 
 [item4]
 section=commands
-caption=_Runner\Choose build config
+caption=_Runner\Choose build config...
 method=lexmap_cfg
 
 [item5]

@@ -23,7 +23,7 @@ IS_MAC = sys.platform=='darwin'
 IS_LIN = not IS_WIN and not IS_MAC
 OS_KEY = 'windows' if IS_WIN else ('osx' if IS_MAC else 'linux')
 BUILDS_DIR = os.path.join(app_path(APP_DIR_DATA), 'buildsystems')
-BUILD_TOOLS_DIR = os.path.join(BUILDS_DIR, 'tools')
+BUILD_TOOLS_DIR = BUILDS_DIR
 USER_DIR = os.path.expanduser('~')
 PROJECT = p.global_project_info
 
@@ -618,7 +618,7 @@ class Building:
             
             '$build_name': self.build_name,
             '$start_time': self._start_time_str,
-            '$duration': lambda: '{:.3}'.format(self.readthread.end_time - self._start_time),
+            '$duration': lambda: '{:.1}'.format(self.readthread.end_time - self._start_time),
             '$return_code': lambda: self.returncode,
         }
         
