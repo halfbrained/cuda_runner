@@ -26,7 +26,9 @@ Plugin has the config file, which is accessible via main menu:
   * "max_logs" -- Maximal count of recent logs, which are remembered.
 
 
-It is possible to bind hotkey to a specific build command. This can be done by adding subcommand description to the "subcommands" category in the config. Format of subcommand:
+It is possible to bind hotkey to a specific build command. This can be done by
+adding subcommand description to the "subcommands" category in the config. 
+Format of subcommand:
   "<caption>": "<build system>|<command name>"
 
   * <caption> - custom name of new command to be displayed in Command Pallete.
@@ -34,7 +36,8 @@ It is possible to bind hotkey to a specific build command. This can be done by a
   * <command name> - name of command in build config, as listed in the "Build with..." dialog.
 
 
-Additional information can be added to the build logs, format of which can be customized via config options "build_log_start_info" and "build_log_finish_info". A number of macros is supported here:
+Additional information can be added to the build logs, format of which can be customized via 
+config options "build_log_start_info" and "build_log_finish_info". A number of macros is supported here:
   * values from the executed command - www.sublimetext.com/docs/3/build_systems.html#exec_options
   * document variables - http://www.sublimetext.com/docs/3/build_systems.html#variable-packages
   * build process information:
