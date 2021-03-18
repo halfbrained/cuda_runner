@@ -24,16 +24,27 @@ Plugin has the config file, which is accessible via main menu:
 "Options / Settings-plugins / Runner". Options:
 
   * "max_logs" -- Maximal count of recent logs, which are remembered.
-
+  * "lexmap" -- Lexer to build-system associations, edited through "Choose build config..." dialog.
+  * "extmap" -- File-mask (Unix shell-style wildcards) to build-system association, 
+		  edited through "Choose build config..." dialog.
 
 It is possible to bind hotkey to a specific build command. This can be done by
-adding subcommand description to the "subcommands" category in the config. 
+adding subcommand description to the "subcommands" category in the plugin's config. 
 Format of subcommand:
   "<caption>": "<build system>|<command name>"
 
-  * <caption> - custom name of new command to be displayed in Command Pallete.
-  * <build system> - filename of build system (with or without extension)
-  * <command name> - name of command in build config, as listed in the "Build with..." dialog.
+  * <caption> -- custom name of new command to be displayed in Command Pallete.
+  * <build system> -- filename of build system (with or without extension)
+  * <command name> -- name of command in build config, as listed in the "Build with..." dialog.
+
+For example:
+...
+  "subcommands": {
+    "Quick Py lint": "python_stuff|lint"
+  },
+...
+Will add command "Quick Py lint" to Command Palette, that will run "lint" command from 
+"python_stuff.sublime-build" build-system.
 
 
 Additional information can be added to the build logs, format of which can be customized via 
