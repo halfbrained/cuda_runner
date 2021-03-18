@@ -12,7 +12,8 @@ from cudatext import *
 from cudax_lib import _json_loads, log
 import cuda_project_man as p
 
-import traceback
+from cudax_lib import get_translation
+_   = get_translation(__file__)  # I18N
 
 """ file:///install.inf
 """
@@ -31,15 +32,15 @@ LEXMAP = {} # lexer name -> build name
 EXTMAP = {} # ^ same for files (assigning build-config to file if no lexer)
 SUBCOMMANDS = {} # 'my cpp build command name' ->  'build cfg name|command name'
 BUILD_LOG_START = [ # added: $build_name, $start_time, $duration, $return_code
-    '-- [${start_time}] Building: ${build_name}: ${file_name}',
-    '-- Command: ${cmd}',
-    '-- Working dir: ${working_dir}',
+    _('-- [${start_time}] Building: ${build_name}: ${file_name}'),
+    _('-- Command: ${cmd}'),
+    _('-- Working dir: ${working_dir}'),
 ]
 BUILD_LOG_FINISH = [ 
-    '-- Done (${duration}s), return code: ${return_code}',
+    _('-- Done (${duration}s), return code: ${return_code}'),
 ]
 
-MAIN_CMD_NAME = 'Build'
+MAIN_CMD_NAME = _('Build')
 
 fn_config = os.path.join(app_path(APP_DIR_SETTINGS), 'cuda_runner.json')
 
@@ -105,17 +106,17 @@ class Command:
                 path = os.path.join(BUILDS_DIR, name)
                 try:
                     build = Build(path)
-                except NotImplementedError:
+                except NotImplementedError as ex:
+                    print(_('Failed to load build-system "{}": {}: {}').format(name, type(ex).__name__, ex))
                     continue
                 except Exception as ex:
-                    msg_box('Loading "{}": {}: {}'.format(name, type(ex).__name__, ex), MB_ICONWARNING)
+                    msg_box(_('Failed to load build-system "{}": {}: {}').format(name, type(ex).__name__, ex), MB_ICONWARNING)
                     continue
                     
                 self.builds.append(build)
         self.builds.sort(key=lambda b: b.name.lower())
             
         if SUBCOMMANDS:
-            #subcmds = 'cuda_runner;print_crap;(caption)\t(arg)\n(caption2)\t(arg)'
             subcmds = '\n'.join('{}\t{}'.format(name, val)  for name,val in SUBCOMMANDS.items())
             app_proc(PROC_SET_SUBCOMMANDS, 'cuda_runner;build_subcommand;'+subcmds)
             
@@ -175,14 +176,17 @@ class Command:
         pass;               LOG and log('.build({})'.format(name))
         
         if not ed.get_filename():
-            print('Save document to disk before building')
+            print(_('Save document to disk before building'))
             return
 
         b = self._get_ed_build(ed)
         if not b:
             lex = ed.get_prop(PROP_LEXER_FILE)
-            target_msg = 'lexer '+lex  if lex else  'file '+os.path.basename(ed.get_filename())
-            msg_status('No build-system(s) found for ' + target_msg)
+            if lex:
+                msg = _('No build-system(s) found for lexer ') + lex
+            else:
+                msg = _('No build-system(s) found for file ') + os.path.basename(ed.get_filename())
+            msg_status(msg)
             return
         
         if name is None:
@@ -208,7 +212,7 @@ class Command:
         
         b = self._getbuild(bname)
         if b is None:
-            print('No such build-system: '+bname)
+            print(_('No such build-system: ')+bname)
             return
     
         self._run_build_cmd(b, cmdname)
@@ -223,18 +227,18 @@ class Command:
         lex = ed.get_prop(PROP_LEXER_FILE)
         filepath = ed.get_filename()
         if not filepath: # cant build if not a file ... TODO?
-            print('Save document to disk before building')
+            print(_('Save document to disk before building'))
             return
         elif lex: # associate to lexer if have one, file otherwise
             mp = LEXMAP
             key = lex
-            caption = 'Choose build-system for lexer: '+lex
+            caption = _('Choose build-system for lexer: ')+lex
         elif filepath:
             fn = os.path.basename(filepath)
             spl = fn.split('.')
             if len(spl) > 2: #double+.ext
                 exts = ['*.'+'.'.join(spl[-i:]) for i in range(1, 1+len(spl)-1)]
-                ind = dlg_menu(DMENU_LIST, exts, caption='Choose extention for association')
+                ind = dlg_menu(DMENU_LIST, exts, caption=_('Choose extention for association'))
                 if ind is None:
                     return
                 key = exts[ind]
@@ -244,7 +248,7 @@ class Command:
                 key = collapse_path(filepath) # full path
             
             mp = EXTMAP
-            caption = 'Choose build-system for file-type: '+key
+            caption = ('Choose build-system for file-type: ')+key
             
         # fill list
         build_names = []
@@ -270,12 +274,13 @@ class Command:
     def _run_build_cmd(self, build, cmdname):
         cmd_names = build.list_commands()
         if cmdname not in cmd_names:
-            print('No command "{}" in build-system "{}":...\n{}'.format(cmdname, build.name, '\n  '.join(cmd_names)))
+            print(_('No command "{}" in build-system "{}"').format(cmdname, build.name)
+                        +':...\n  {}'.format('\n  '.join(cmd_names)))
             return
             
         r = build.run_cmd(cmdname)
         if r is None:
-            print('Failed to run command "{}" in build-system "{}"'.format(cmdname, build.name))
+            print(_('Failed to run command "{}" in build-system "{}"').format(cmdname, build.name))
             return
         popen, cmdj = r
 
@@ -327,7 +332,7 @@ class Command:
         """ direction: -1 = older;  +1 = newer
         """
         if not self.buildings:
-            msg_status('No builds done')
+            msg_status(_('No builds done yet'))
             return
 
         try:
@@ -337,13 +342,13 @@ class Command:
             newind = 0 # show first if not 
         
         if newind < 0:
-            msg_status('No older build log present: {}/{}'.format(newind+1, len(self.buildings)))
+            msg_status(_('No older build log present: {}/{}').format(ind+1, len(self.buildings)))
             return
         elif newind >= len(self.buildings):
-            msg_status('No older build log present: {}/{}'.format(newind+1, len(self.buildings)))
+            msg_status(_('No newer build log present: {}/{}').format(ind+1, len(self.buildings)))
             return
         
-        msg_status('Showing build log: {}/{}'.format(newind+1, len(self.buildings)))
+        msg_status(_('Showing build log: {}/{}').format(newind+1, len(self.buildings)))
         
         self.current_build_log = self.buildings[newind]
         
@@ -402,9 +407,9 @@ class Build:
             
         self.j = _json_loads(txt)
         if self.j is None:
-            raise Exception('Json Error')
+            raise Exception(_('Json Error'))
         if 'target' in self.j:
-            raise NotImplementedError('"target" option is not supported: '+path) # work done in ST python-plugin
+            raise NotImplementedError(_('"target" option is not supported')) # work done in ST python-plugin
         
         self._load_selectors()
         
@@ -473,7 +478,8 @@ class Build:
         
         pass;                   LOG and log('?? Popen cmd={}', cmd)
         try:
-            msg_status('Run: "{}"'.format(cmd))
+            cmd_str = ' '.join(cmd) if type(cmd) == list else cmd
+            msg_status(_('Running: "{}"').format(cmd_str))
             popen = subprocess.Popen(
                         cmd,
                         stdout = subprocess.PIPE,
@@ -488,7 +494,7 @@ class Build:
             return
         if popen is None:
             pass;               LOG and log('fail Popen',)
-            msg_status('Fail running: {}'.format(cmd))
+            msg_status(_('Fail running: {}').format(cmd))
             return
         pass;                  LOG and log('ok Popen',)
 
@@ -511,7 +517,7 @@ class Build:
             try:
                 cmdj = next(variant for variant in self.j.get('variants', {})  if variant.get('name') == cmdname)
             except StopIteration:
-                raise Exception('No such command: '+cmdname)
+                raise Exception(_('No such command: ')+cmdname)
             
         cmdj = get_cmd(cmdj)
         return cmdj
@@ -563,7 +569,7 @@ class Building:
             self._is_canceled = True
             self._stop()
             
-            cancel_line = '-- Canceled'
+            cancel_line = _('-- Canceled')
             self.lines.append(cancel_line)
             if self.f_can_print(self):
                 app_log(LOG_ADD, cancel_line, panel=LOG_PANEL_OUTPUT)
