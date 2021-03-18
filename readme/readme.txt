@@ -58,11 +58,11 @@ Log lines
 
 Additional information can be added to the build logs, format of which can be customized via 
 config options "build_log_start_info" and "build_log_finish_info".
-Many macros is supported here:
+Many macros are supported here:
 
-  * values from the executed command - www.sublimetext.com/docs/3/build_systems.html#exec_options
-  * document variables - http://www.sublimetext.com/docs/3/build_systems.html#variable-packages
-  * build process information:
+  * Values from build system - www.sublimetext.com/docs/3/build_systems.html#exec_options
+  * Document variables - http://www.sublimetext.com/docs/3/build_systems.html#variable-packages
+  * Build process information:
   
     * $build_name -- Name of build-system.
     * $start_time -- Date/time when process was executed.
