@@ -44,8 +44,7 @@ MAIN_CMD_NAME = _('Build')
 
 fn_config = os.path.join(app_path(APP_DIR_SETTINGS), 'cuda_runner.json')
 
-'!!! undo log'
-LOG = True
+LOG = False
 
 
 def get_first(gen, notnone=False):
@@ -193,7 +192,7 @@ class Command:
         
         if name is None:
             cmd_names = b.list_commands()
-            ind = dlg_menu(DMENU_LIST, cmd_names)
+            ind = dlg_menu(DMENU_LIST, cmd_names, caption=_('Build with...'))
             if ind is None:
                 return
             name = cmd_names[ind]
