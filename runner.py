@@ -61,7 +61,7 @@ def get_first(gen, notnone=False):
     return None
 
 def collapse_path(path):
-    if path.startswith(USER_DIR):
+    if (path + os.sep).startswith(USER_DIR + os.sep):
         path = path.replace(USER_DIR, '~', 1)
     return path
 
