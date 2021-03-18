@@ -178,7 +178,7 @@ class Command:
         pass;               LOG and log('.build({})'.format(name))
         
         if not ed.get_filename():
-            print(_('Save document to disk before building'))
+            msg_status(_('Save document to disk before building'))
             return
 
         b = self._get_ed_build(ed)
@@ -214,7 +214,7 @@ class Command:
         
         b = self._getbuild(bname)
         if b is None:
-            print(_('No such build-system: ')+bname)
+            msg_status(_('No such build-system: ')+bname)
             return
     
         self._run_build_cmd(b, cmdname)
@@ -229,7 +229,7 @@ class Command:
         lex = ed.get_prop(PROP_LEXER_FILE)
         filepath = ed.get_filename()
         if not filepath: # cant build if not a file ... TODO?
-            print(_('Save document to disk before building'))
+            msg_status(_('Save document to disk before building'))
             return
         elif lex: # associate to lexer if have one, file otherwise
             mp = LEXMAP
@@ -276,13 +276,13 @@ class Command:
     def _run_build_cmd(self, build, cmdname):
         cmd_names = build.list_commands()
         if cmdname not in cmd_names:
-            print(_('No command "{}" in build-system "{}"').format(cmdname, build.name)
+            msg_status(_('No command "{}" in build-system "{}"').format(cmdname, build.name)
                         +':...\n  {}'.format('\n  '.join(cmd_names)))
             return
             
         r = build.run_cmd(cmdname)
         if r is None:
-            print(_('Failed to run command "{}" in build-system "{}"').format(cmdname, build.name))
+            msg_status(_('Failed to run command "{}" in build-system "{}"').format(cmdname, build.name))
             return
         popen, cmdj = r
 
