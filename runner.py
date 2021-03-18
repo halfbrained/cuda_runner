@@ -208,7 +208,7 @@ class Command:
         
         b = self._getbuild(bname)
         if b is None:
-            print('No such build-config: '+bname)
+            print('No such build-system: '+bname)
             return
     
         self._run_build_cmd(b, cmdname)
@@ -228,7 +228,7 @@ class Command:
         elif lex: # associate to lexer if have one, file otherwise
             mp = LEXMAP
             key = lex
-            caption = 'Choose build-config for lexer: '+lex
+            caption = 'Choose build-system for lexer: '+lex
         elif filepath:
             fn = os.path.basename(filepath)
             spl = fn.split('.')
@@ -244,7 +244,7 @@ class Command:
                 key = collapse_path(filepath) # full path
             
             mp = EXTMAP
-            caption = 'Choose build-config for file-type: '+key
+            caption = 'Choose build-system for file-type: '+key
             
         # fill list
         build_names = []
@@ -252,7 +252,7 @@ class Command:
             build_names.append('<None>')
         build_names.extend( b.name for b in self.builds )
         
-        # find focused (current build-config)
+        # find focused (current build-system)
         try:
             focused = build_names.index(mp.get(key))
         except ValueError:
@@ -270,12 +270,12 @@ class Command:
     def _run_build_cmd(self, build, cmdname):
         cmd_names = build.list_commands()
         if cmdname not in cmd_names:
-            print('No command "{}" in build-config "{}":...\n{}'.format(cmdname, build.name, '\n  '.join(cmd_names)))
+            print('No command "{}" in build-system "{}":...\n{}'.format(cmdname, build.name, '\n  '.join(cmd_names)))
             return
             
         r = build.run_cmd(cmdname)
         if r is None:
-            print('Failed to run command "{}" in build-config "{}"'.format(cmdname, build.name))
+            print('Failed to run command "{}" in build-system "{}"'.format(cmdname, build.name))
             return
         popen, cmdj = r
 
@@ -396,7 +396,7 @@ class Build:
             
         # remove stream comments: /* ... */
         if '/*' in txt:
-            txt = re.sub('/\*.*?\*/', '', txt, flags=re.DOTALL)
+            txt = re.sub('/\*.*?\*/', '', txt, flags=re.DOTALL)  # all done consecutively once, no need to compile
         if '\ ' in txt: # json chokes on escaped spaces
             txt = txt.replace('\ ', ' ')
             
@@ -682,6 +682,7 @@ VAR_EXPAND_MAP = {
     # The extension of the current project file. 
     '$project_extension':   lambda: os.path.splitext(os.path.basename(PROJECT.get('filename', '')))[1],
 }    
+re_expand = re.compile('(?<!\\\)(\$[a-z_]+|\$\{[^}]+\}*)')
 
 def expandvars(s, mp=VAR_EXPAND_MAP, no_match_val=None):
     def repl(match): #SKIP
@@ -701,7 +702,7 @@ def expandvars(s, mp=VAR_EXPAND_MAP, no_match_val=None):
         
     def expand_str(s): #SKIP
         if '$' in s:
-            return re.sub('(?<!\\\)(\$[a-z_]+|\$\{[^}]+\}*)', repl, s)
+            return re_expand.sub(repl, s)
         else:
             return s
         
