@@ -287,10 +287,10 @@ class Command:
         if r is None:
             msg_status(_('Failed to run command "{}" in build-system "{}"').format(cmdname, build.name))
             return
-        popen, cmdj = r
+        popen, cmdj, notif = r
 
         f_can_print = lambda bld: self.current_build_log is bld
-        building = Building(popen, build.name, cmdj, f_can_print=f_can_print)
+        building = Building(popen, build.name, cmdj, f_can_print=f_can_print, notif=notif)
         self._on_new_building(building)
         building.start()  # start() needs to be after _on_new_building() 
         
@@ -509,11 +509,11 @@ class Build:
 
         app_log(LOG_CLEAR, '', panel=LOG_PANEL_OUTPUT)
 
-        # notify once if 'cmd' needed a project
+        notif = None
         if proj_err[0]:
-            app_log(LOG_ADD, _('Note: build-system is expecting a Project to be opened'), panel=LOG_PANEL_OUTPUT)
+            notif = _('Note: build-system is expecting a Project to be opened')
             
-        return popen, cmdj
+        return popen, cmdj, notif
     
     def _get_cmd(self, cmdname):
         def get_cmd(j): #SKIP
@@ -545,7 +545,7 @@ class Build:
         
 
 class Building:
-    def __init__(self, popen, build_name, cmdj, f_can_print):
+    def __init__(self, popen, build_name, cmdj, f_can_print, notif=None):
         self.build_name = build_name
         self.cmdj = cmdj
         self.f_can_print = f_can_print
@@ -560,6 +560,8 @@ class Building:
         self._is_finished = False
         self._is_canceled = False
         
+        self._notif = notif
+        
     def start(self):
         self.readthread.start()
         
@@ -568,6 +570,10 @@ class Building:
         self.focused_log = False
         
         timer_proc(TIMER_START, self._on_timer, 200, tag='')
+
+        if self._notif:
+            self.lines.append(self._notif)
+            app_log(LOG_ADD, self._notif, panel=LOG_PANEL_OUTPUT)
 
         if BUILD_LOG_START:
             self._output_add_meta(BUILD_LOG_START)        
