@@ -5,6 +5,7 @@ import json
 import subprocess
 import queue # import Queue, Empty
 import time
+import platform
 from fnmatch import fnmatch
 from threading import Thread
 
@@ -21,7 +22,7 @@ _   = get_translation(__file__)  # I18N
 IS_WIN = os.name=='nt'
 IS_MAC = sys.platform=='darwin'
 IS_LIN = not IS_WIN and not IS_MAC
-OS_KEY = 'windows' if IS_WIN else ('osx' if IS_MAC else 'linux')
+OS_KEY = 'windows' if IS_WIN else ('osx' if IS_MAC else os.uname()[0].lower() )
 BUILDS_DIR = os.path.join(app_path(APP_DIR_DATA), 'buildsystems')
 BUILD_TOOLS_DIR = BUILDS_DIR
 USER_DIR = os.path.expanduser('~')
