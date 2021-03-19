@@ -70,6 +70,19 @@ Many macros are supported here:
     * $return_code -- Return-code of the process.
 
 
+PATH variable
+-------------
+
+Plugin allows to change PATH variable, using construct in build-system like:
+  "env": { "path": "/some/path" }
+You can append to existing PATH, using ":" separator char on Unix:
+  "env": { "path": "$path:/some/path" }
+  "env": { "PATH": "$path:/some/path" }
+  "env": { "PATH": "$PATH:/some/path" }
+On Windows separator must be ";":
+  "env": { "PATH": "$PATH;C:\\some\\path" }
+
+
 About
 -----
 
