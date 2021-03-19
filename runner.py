@@ -33,7 +33,7 @@ EXTMAP = {} # ^ same for files (assigning build-config to file if no lexer)
 SUBCOMMANDS = {} # 'my cpp build command name' ->  'build cfg name|command name'
 BUILD_LOG_START = [ # added: $build_name, $start_time, $duration, $return_code
     _('-- [${start_time}] Building: ${build_name}: ${file_name}'),
-    _('-- Command: ${cmd}'),
+    _('-- Command: ${shell_cmd:${cmd}}'),
     _('-- Working dir: ${working_dir}'),
 ]
 BUILD_LOG_FINISH = [ 
@@ -140,8 +140,12 @@ class Command:
                 if name in j:
                     mp.clear()
                     mp.update(j[name])
+            
+            # fix bad plugin config (will remove later)
+            fixed = _('-- Command: ${shell_cmd:${cmd}}')
             for name,l in lists.items(): # lists
                 if name in j:
+                    j[name] = [fixed if s == '-- Command: ${cmd}' else s for s in j[name]]
                     l.clear()
                     l.extend(j[name])
 
