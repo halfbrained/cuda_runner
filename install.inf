@@ -1,6 +1,6 @@
 [info]
 title=Runner
-desc=Adds commands to build/compile files/projects.
+desc=Allows to run external tools, supports build-systems from Sublime Text editor
 type=cudatext-plugin
 subdir=cuda_runner
 homepage=https://github.com/halfbrained/cuda_runner

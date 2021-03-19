@@ -70,6 +70,16 @@ Many macros are supported here:
     * $return_code -- Return-code of the process.
 
 
+PATH variable
+-------------
+
+Key "path" in build-systems allows to change OS PATH variable.
+Using ":" separator on Unix:
+  "path": "$PATH:/my/dir",
+and ";" separator on Windows:
+  "path": "$PATH;C:\\my\\dir",
+
+
 About
 -----
 
