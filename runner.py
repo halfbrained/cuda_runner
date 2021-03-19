@@ -397,6 +397,8 @@ class Build:
     ]
     
     def __init__(self, path):
+        self._proj_warned = False
+        
         self._load(path)
         self.name = os.path.splitext(os.path.basename(path))[0]
         
@@ -470,9 +472,11 @@ class Build:
         return False
     
     def run_cmd(self, cmdname):
-        cmdj = self._get_cmd(cmdname)
-        cmdj = self._expand_cmd(cmdj)
+        proj_err = [False]
         
+        cmdj = self._get_cmd(cmdname)
+        cmdj = self._expand_cmd(cmdj, proj_err=proj_err)
+
         cmd = cmdj.get('shell_cmd')  or cmdj.get('cmd')
         is_shell = cmdj['shell']  if 'shell' in cmdj else  'shell_cmd' in cmdj
         cwd = cmdj.get('working_dir')
@@ -505,6 +509,10 @@ class Build:
 
         app_log(LOG_CLEAR, '', panel=LOG_PANEL_OUTPUT)
 
+        # notify once if 'cmd' needed a project
+        if proj_err[0]:
+            app_log(LOG_ADD, _('Note: build-system is expecting a Project to be opened'), panel=LOG_PANEL_OUTPUT)
+            
         return popen, cmdj
     
     def _get_cmd(self, cmdname):
@@ -527,11 +535,11 @@ class Build:
         cmdj = get_cmd(cmdj)
         return cmdj
         
-    def _expand_cmd(self, cmdj):
+    def _expand_cmd(self, cmdj, proj_err):
         # expand vars
         for exopt in Build.EXPANDABLE_OPTIONS:
             if exopt in cmdj:
-                cmdj[exopt] = expandvars(cmdj[exopt])
+                cmdj[exopt] = expandvars(cmdj[exopt], proj_err=proj_err)
 
         return cmdj
         
@@ -681,7 +689,7 @@ VAR_EXPAND_MAP = {
     '$file_extension':      lambda: os.path.splitext(os.path.basename(ed.get_filename()))[1],
     # The full path to the first folder open in the side bar. 
     '$folder':              lambda: os.path.dirname(PROJECT.get('mainfile', '')), # closest: project mainfile dir
-    
+        
     # The full path to the current project file. 
     '$project':             lambda: PROJECT.get('filename'),
     # The path to the folder containing the current project file. 
@@ -695,7 +703,12 @@ VAR_EXPAND_MAP = {
 }    
 re_expand = re.compile('(?<!\\\)(\$[a-z_]+|\$\{[^}]+\}*)')
 
-def expandvars(s, mp=VAR_EXPAND_MAP, no_match_val=None):
+def expandvars(s, mp=VAR_EXPAND_MAP, no_match_val=None, proj_err=[False]):
+    """ if need to check if needed a project in expand - give one-item-list in 'proj_err'
+            'proj_err' - will contain result: True or False
+    """
+    proj_err[0] = False
+    
     def repl(match): #SKIP
         s = match.group(0)
         r = s.replace('{', '').replace('}', '').replace('$', '')
@@ -709,6 +722,12 @@ def expandvars(s, mp=VAR_EXPAND_MAP, no_match_val=None):
                 pass
             if val:
                 return val
+                
+        # failed to expand
+        if all(var == '$folder' or var.startswith('$project')    for var in rs ): # is only $project... and $folder
+            proj_err[0] = True
+            return os.path.dirname(ed.get_filename())
+                
         return no_match_val or s
         
     def expand_str(s): #SKIP
@@ -721,4 +740,5 @@ def expandvars(s, mp=VAR_EXPAND_MAP, no_match_val=None):
         return expand_str(s)
     else:
         return [expand_str(sp) for sp in s]
+        
         
