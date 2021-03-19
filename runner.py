@@ -5,7 +5,6 @@ import json
 import subprocess
 import queue # import Queue, Empty
 import time
-import platform
 from fnmatch import fnmatch
 from threading import Thread
 
