@@ -103,16 +103,17 @@ class Command:
             
     def _load_builds(self):
         self._builds_loaded = True
+        
+        if not os.path.exists(BUILDS_DIR):
+            return
+        
         for name in os.listdir(BUILDS_DIR):
             if name.endswith('.sublime-build'):
                 path = os.path.join(BUILDS_DIR, name)
                 try:
                     build = Build(path)
-                except NotImplementedError as ex:
-                    print(_('Failed to load build-system "{}": {}: {}').format(name, type(ex).__name__, ex))
-                    continue
                 except Exception as ex:
-                    msg_box(_('Failed to load build-system "{}": {}: {}').format(name, type(ex).__name__, ex), MB_ICONWARNING)
+                    print('NOTE: ' + _('Failed to load build-system "{}": {}: {}').format(name, type(ex).__name__, ex))
                     continue
                     
                 self._builds.append(build)
