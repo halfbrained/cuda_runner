@@ -73,10 +73,11 @@ Many macros are supported here:
 PATH variable
 -------------
 
-You can append to OS PATH variable, using ":" separator on Unix:
-  "path": "$PATH:/my/dir"
+Key "path" in build-systems allows to change OS PATH variable.
+Using ":" separator on Unix:
+  "path": "$PATH:/my/dir",
 and ";" separator on Windows:
-  "path": "$PATH;C:\\my\\dir"
+  "path": "$PATH;C:\\my\\dir",
 
 
 About
