@@ -389,6 +389,9 @@ class Build:
         'syntax',       # ~lexer for output
         
         'shell',        # not in spec, used in configs
+        
+        'path',
+        'PATH',
     }
     EXPANDABLE_OPTIONS = [
         'cmd',
@@ -476,13 +479,21 @@ class Build:
         
         cmdj = self._get_cmd(cmdname)
         cmdj = self._expand_cmd(cmdj, proj_err=proj_err)
+        
+        env = {**os.environ}
 
         cmd = cmdj.get('shell_cmd')  or cmdj.get('cmd')
         is_shell = cmdj['shell']  if 'shell' in cmdj else  'shell_cmd' in cmdj
         cwd = cmdj.get('working_dir')
         file_regex = cmdj.get('file_regex')  
-        env = cmdj.get('env')
+        env.update( cmdj.get('env', {}) ) # add to environ instead of replacing
+        path = cmdj.get('path') or cmdj.get("PATH")
         
+        if path:
+            curpath = env.get('PATH', '')
+            path = expandvars(path, mp={'$PATH':curpath, '$path':curpath})
+            env['PATH'] = path
+
         set_output_regex(file_regex)
         
         pass;                   LOG and log('?? Popen cmd={}', cmd)
@@ -707,7 +718,7 @@ VAR_EXPAND_MAP = {
     # The extension of the current project file. 
     '$project_extension':   lambda: os.path.splitext(os.path.basename(PROJECT.get('filename', '')))[1],
 }    
-re_expand = re.compile('(?<!\\\)(\$[a-z_]+|\$\{[^}]+\}*)')
+re_expand = re.compile('(?<!\\\)(\$[a-zA-Z_]+|\$\{[^}]+\}*)')
 
 def expandvars(s, mp=VAR_EXPAND_MAP, no_match_val=None, proj_err=[False]):
     """ if need to check if needed a project in expand - give one-item-list in 'proj_err'
