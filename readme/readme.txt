@@ -77,7 +77,6 @@ You can append to OS PATH variable, using ":" separator on Unix:
   "path": "$PATH:/my/dir"
 and ";" separator on Windows:
   "path": "$PATH;C:\\my\\dir"
-Key "path" can be written also as "PATH".
 
 
 About
