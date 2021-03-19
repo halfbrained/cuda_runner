@@ -8,6 +8,21 @@ Build-system files must be copied to [CudaText]/data/buildsystems folder.
 Sometimes ST3 packages with build-systems include also binaries (.exe files).
 These binaries must be copied to [CudaText]/data/buildsystems/tools folder.
 
+
+Where to get build-systems
+--------------------------
+
+*  In CudaText, build-systems are already in Addon Manager.
+   In the menu "Plugins / Addon Manager / Install", you can find the package
+   containing most of ST3 build-systems, taken from ST3 packages.
+*  You can find more build-systems in Sublime Text ecosystem, and place
+   them to CudaText "data/buildsystems" folder.
+*  You can write you own, according to Sublime Text docs.   
+   https://www.sublimetext.com/docs/3/build_systems.html
+   For example, "Free Pascal" build-system was made by Alexey T, it's
+   in Addon Manager in that big package.
+
+
 Commands
 --------
 
