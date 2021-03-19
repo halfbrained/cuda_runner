@@ -73,14 +73,11 @@ Many macros are supported here:
 PATH variable
 -------------
 
-Plugin allows to change PATH variable, using construct in build-system like:
-  "env": { "path": "/some/path" }
-You can append to existing PATH, using ":" separator char on Unix:
-  "env": { "path": "$path:/some/path" }
-  "env": { "PATH": "$path:/some/path" }
-  "env": { "PATH": "$PATH:/some/path" }
-On Windows separator must be ";":
-  "env": { "PATH": "$PATH;C:\\some\\path" }
+You can append to OS PATH variable, using ":" separator on Unix:
+  "path": "$PATH:/my/dir"
+and ";" separator on Windows:
+  "path": "$PATH;C:\\my\\dir"
+Key "path" can be written also as "PATH".
 
 
 About
