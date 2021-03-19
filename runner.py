@@ -538,11 +538,18 @@ class Build:
         if cmdname == MAIN_CMD_NAME:
             cmdj = self.j
         else:
+            cmdj = get_cmd(self.j)
+            if '$cmd' in cmdj:
+                del cmdj['$cmd']
+            if '$shell_cmd' in cmdj:
+                del cmdj['$shell_cmd']
+                
             try:
-                cmdj = next(variant for variant in self.j.get('variants', {})  if variant.get('name') == cmdname)
+                variant_cmdj = next(variant for variant in self.j.get('variants', {})  if variant.get('name') == cmdname)
+                cmdj.update(variant_cmdj)
             except StopIteration:
                 raise Exception(_('No such command: ')+cmdname)
-            
+
         cmdj = get_cmd(cmdj)
         return cmdj
         
