@@ -654,7 +654,7 @@ class Building:
 
             '$build_name': self.build_name,
             '$start_time': self._start_time_str,
-            '$duration': lambda: '{:.1}'.format(self.readthread.end_time - self._start_time),
+            '$duration': lambda: '{:.1f}'.format(self.readthread.end_time - self._start_time),
             '$return_code': lambda: self.returncode,
         }
 
