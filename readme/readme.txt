@@ -45,6 +45,7 @@ Plugin has the config file, which is accessible via main menu:
 "Options / Settings-plugins / Runner". Options:
 
   * "max_logs" -- Maximal count of recent logs, which are remembered.
+  * "tail_log" -- Should the Output scroll to the added line.
   * "lexmap" -- Lexer to build-system associations, edited through "Choose build config..." dialog.
   * "extmap" -- File-mask (Unix shell-style wildcards) to build-system association, 
           edited through "Choose build config..." dialog.

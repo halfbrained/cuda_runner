@@ -1,2 +1,5 @@
+2021.04.09
++ add: 'tail_log' option 
+
 2021.03.17
 initial

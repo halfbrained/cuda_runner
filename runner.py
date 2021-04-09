@@ -28,6 +28,7 @@ USER_DIR = os.path.expanduser('~')
 PROJECT = p.global_project_info
 
 option_max_logs = 8
+option_tail_log = True
 LEXMAP = {} # lexer name -> build name
 EXTMAP = {} # ^ same for files (assigning build-config to file if no lexer)
 SUBCOMMANDS = {} # 'my cpp build command name' ->  'build cfg name|command name'
@@ -64,12 +65,25 @@ def collapse_path(path):
         path = path.replace(USER_DIR, '~', 1)
     return path
 
+def output(strings):
+    """ 'strings' - str or list[str]
+    """
+    if not isinstance(strings, list):
+        strings = [strings]
+    for s in strings:
+        app_log(LOG_ADD, s, panel=LOG_PANEL_OUTPUT)
+
+    if option_tail_log and Command._output_ed:
+        oed = Command._output_ed
+        n = oed.get_line_count()
+        visn = oed.get_prop(PROP_VISIBLE_LINES)
+        oed.set_prop(PROP_LINE_TOP, max(0, n-visn))
+
 def set_output(lines):
     app_log(LOG_CLEAR, '', panel=LOG_PANEL_OUTPUT)
     app_proc(PROC_BOTTOMPANEL_ACTIVATE, 'Output')
 
-    for line in lines:
-        app_log(LOG_ADD, line, panel=LOG_PANEL_OUTPUT)
+    output(lines)
 
 def set_output_regex(regex):
     if regex:
@@ -80,6 +94,14 @@ def set_output_regex(regex):
 
 
 class Command:
+    try:
+        h = app_proc(PROC_GET_OUTPUT_FORM, '')
+        edh = dlg_proc(h, DLG_CTL_HANDLE, name='log')
+        _output_ed = Editor(edh)
+    except NameError:
+        _output_ed = None
+
+
     def __init__(self):
         self.buildings = [] # new are appended
 
@@ -120,6 +142,7 @@ class Command:
 
     def load_config(self):
         global option_max_logs
+        global option_tail_log
 
         if os.path.exists(fn_config):
             with open(fn_config, 'r', encoding='utf-8') as f:
@@ -136,6 +159,7 @@ class Command:
 
             ## load
             option_max_logs = max(1, j.get('max_logs', option_max_logs))
+            option_tail_log = j.get('tail_log', option_tail_log)
 
             for name,mp in maps.items(): # dicts
                 if name in j:
@@ -154,6 +178,7 @@ class Command:
     def save_config(self):
         j = {
             'max_logs': option_max_logs,
+            'tail_log': option_tail_log,
             'lexmap':LEXMAP,
             'extmap':EXTMAP,
             'subcommands':SUBCOMMANDS,
@@ -592,7 +617,7 @@ class Building:
 
         if self._notif:
             self.lines.append(self._notif)
-            app_log(LOG_ADD, self._notif, panel=LOG_PANEL_OUTPUT)
+            output(self._notif)
 
         if BUILD_LOG_START:
             self._output_add_meta(BUILD_LOG_START)
@@ -610,7 +635,7 @@ class Building:
             cancel_line = _('-- Canceled')
             self.lines.append(cancel_line)
             if self.f_can_print(self):
-                app_log(LOG_ADD, cancel_line, panel=LOG_PANEL_OUTPUT)
+                output(cancel_line)
 
 
     def _on_timer(self, tag='', info=''):
@@ -630,7 +655,7 @@ class Building:
 
             self.lines.append(line)
             if self.f_can_print(self):
-                app_log(LOG_ADD, line, panel=LOG_PANEL_OUTPUT)
+                output(line)
 
             if not self.focused_log: # activate panel once
                 self.focused_log = True
@@ -662,7 +687,7 @@ class Building:
             line = expandvars(line, mp=values, no_match_val='[None]')
 
             if self.f_can_print(self):
-                app_log(LOG_ADD, line, panel=LOG_PANEL_OUTPUT)
+                output(line)
             self.lines.append(line)
 
 
