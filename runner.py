@@ -69,16 +69,16 @@ def collapse_path(path):
 def output(strings):
     """ 'strings' - str or list[str]
     """
+    cCommand_ScrollToEnd = 259 # cudatext_cmd.py
+
     if not isinstance(strings, list):
         strings = [strings]
     for s in strings:
         app_log(LOG_ADD, s, panel=LOG_PANEL_OUTPUT)
 
-    if option_tail_log and Command._output_ed:
-        oed = Command._output_ed
-        n = oed.get_line_count()
-        visn = oed.get_prop(PROP_VISIBLE_LINES)
-        oed.set_prop(PROP_LINE_TOP, max(0, n-visn))
+    oed = Command._output_ed
+    if option_tail_log and oed:
+        oed.cmd(cCommand_ScrollToEnd)
 
 def set_output(lines):
     app_log(LOG_CLEAR, '', panel=LOG_PANEL_OUTPUT)
