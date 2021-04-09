@@ -29,6 +29,7 @@ PROJECT = p.global_project_info
 
 option_max_logs = 8
 option_tail_log = True
+option_save_on_build = True
 LEXMAP = {} # lexer name -> build name
 EXTMAP = {} # ^ same for files (assigning build-config to file if no lexer)
 SUBCOMMANDS = {} # 'my cpp build command name' ->  'build cfg name|command name'
@@ -143,6 +144,7 @@ class Command:
     def load_config(self):
         global option_max_logs
         global option_tail_log
+        global option_save_on_build
 
         if os.path.exists(fn_config):
             with open(fn_config, 'r', encoding='utf-8') as f:
@@ -160,6 +162,7 @@ class Command:
             ## load
             option_max_logs = max(1, j.get('max_logs', option_max_logs))
             option_tail_log = j.get('tail_log', option_tail_log)
+            option_save_on_build = j.get('save_on_build', option_save_on_build)
 
             for name,mp in maps.items(): # dicts
                 if name in j:
@@ -179,6 +182,7 @@ class Command:
         j = {
             'max_logs': option_max_logs,
             'tail_log': option_tail_log,
+            'save_on_build' : option_save_on_build,
             'lexmap':LEXMAP,
             'extmap':EXTMAP,
             'subcommands':SUBCOMMANDS,
@@ -308,6 +312,12 @@ class Command:
             msg_status(_('No command "{}" in build-system "{}"').format(cmdname, build.name)
                         +':...\n  {}'.format('\n  '.join(cmd_names)))
             return
+
+        if option_save_on_build:
+            if not ed.save():
+                msg = _('Failed to save document: {}; Cancelling build')
+                print('NOTE: ' + msg.format(ed.get_prop(PROP_TAB_TITLE)))
+                return
 
         r = build.run_cmd(cmdname)
         if r is None:
