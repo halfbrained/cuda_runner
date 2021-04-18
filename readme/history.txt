@@ -1,3 +1,6 @@
+2021.04.18
++ add: lazy imports to improve startup time
+
 2021.04.09
 + add: 'tail_log', 'save_on_build' options 
 

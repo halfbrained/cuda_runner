@@ -7,7 +7,7 @@ homepage=https://github.com/halfbrained/cuda_runner
 
 [item1]
 section=events
-events=on_start,on_open
+events=on_start,on_exit
 ;events=
 
 [item2]

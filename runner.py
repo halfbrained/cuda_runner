@@ -2,15 +2,17 @@ import os
 import sys
 import re
 import json
-import subprocess
-import queue # import Queue, Empty
+import queue
 import time
 from fnmatch import fnmatch
 from threading import Thread
 
 from cudatext import *
-from cudax_lib import _json_loads, log
-import cuda_project_man as p
+
+# imported when needed
+#import subprocess # time - 2ms
+#from cudax_lib import _json_loads #, log
+#import cuda_project_man as p # time - 0ms
 
 from cudax_lib import get_translation
 _   = get_translation(__file__)  # I18N
@@ -25,7 +27,7 @@ OS_KEY = 'windows' if IS_WIN else ('osx' if IS_MAC else os.uname()[0].lower() )
 BUILDS_DIR = os.path.join(app_path(APP_DIR_DATA), 'buildsystems')
 BUILD_TOOLS_DIR = BUILDS_DIR
 USER_DIR = os.path.expanduser('~')
-PROJECT = p.global_project_info
+
 
 option_max_logs = 8
 option_tail_log = True
@@ -47,6 +49,8 @@ MAIN_CMD_NAME = _('Build')
 fn_config = os.path.join(app_path(APP_DIR_SETTINGS), 'cuda_runner.json')
 
 LOG = False
+if LOG:
+    from cudax_lib import log
 
 
 def get_first(gen, notnone=False):
@@ -92,6 +96,10 @@ def set_output_regex(regex):
         app_log(LOG_SET_LINE_ID, '2', panel=LOG_PANEL_OUTPUT)
         app_log(LOG_SET_COL_ID, '3', panel=LOG_PANEL_OUTPUT)
         app_log(LOG_SET_NAME_ID, '1', panel=LOG_PANEL_OUTPUT) # filename
+
+def get_proj():
+    import cuda_project_man
+    return cuda_project_man.global_project_info
 
 
 class Command:
@@ -199,10 +207,6 @@ class Command:
 
     def on_start(self, ed_self): # subcommand hotkeys dont work without this
         pass
-
-    def on_open(self, ed_self):
-        if not self._builds_loaded:
-            self._load_builds()
 
     def on_exit(self, ed_self):
         self.cancel_build()
@@ -442,6 +446,8 @@ class Build:
         self.name = os.path.splitext(os.path.basename(path))[0]
 
     def _load(self, path):
+        from cudax_lib import _json_loads
+
         with open(path, 'r', encoding='utf-8') as f:
             txt = f.read()
 
@@ -511,6 +517,8 @@ class Build:
         return False
 
     def run_cmd(self, cmdname):
+        import subprocess
+
         proj_err = [False]
 
         cmdj = self._get_cmd(cmdname)
@@ -748,18 +756,18 @@ VAR_EXPAND_MAP = {
     # The extension of the file name of the file in the active view.
     '$file_extension':      lambda: os.path.splitext(os.path.basename(ed.get_filename()))[1],
     # The full path to the first folder open in the side bar.
-    '$folder':              lambda: os.path.dirname(PROJECT.get('mainfile', '')), # closest: project mainfile dir
+    '$folder':              lambda: os.path.dirname(get_proj().get('mainfile', '')), # closest: project mainfile dir
 
     # The full path to the current project file.
-    '$project':             lambda: PROJECT.get('filename'),
+    '$project':             lambda: get_proj().get('filename'),
     # The path to the folder containing the current project file.
-    '$project_path':        lambda: os.path.dirname(PROJECT.get('filename', '')),
+    '$project_path':        lambda: os.path.dirname(get_proj().get('filename', '')),
     # The file name (sans folder path) of the current project file.
-    '$project_name':        lambda: os.path.basename(PROJECT.get('filename', '')),
+    '$project_name':        lambda: os.path.basename(get_proj().get('filename', '')),
     # The file name, excluding the extension, of the current project file.
-    '$project_base_name':   lambda: os.path.splitext(os.path.basename(PROJECT.get('filename', '')))[0],
+    '$project_base_name':   lambda: os.path.splitext(os.path.basename(get_proj().get('filename', '')))[0],
     # The extension of the current project file.
-    '$project_extension':   lambda: os.path.splitext(os.path.basename(PROJECT.get('filename', '')))[1],
+    '$project_extension':   lambda: os.path.splitext(os.path.basename(get_proj().get('filename', '')))[1],
 }
 re_expand = re.compile('(?<!\\\)(\$[a-zA-Z_]+|\$\{[^}]+\}*)')
 
